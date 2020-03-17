@@ -1,6 +1,42 @@
 let transactions = [];
 let myChart;
 
+let db
+
+const request = indexedDB.open('budgetdb', 1)
+
+const checkDatabase = () => {
+  const transaction = db.transaction(['transactions'], 'readwrite')
+  const store = transaction.objectStore('transactions')
+
+  const getAll = store.getAll()
+
+  getAll.onsuccess = () => {
+    if(getAll.result.length > 0) {
+      axios.post('/api/transactions', getAll.result)
+      .then(() => {
+        const transaction = db.transaction(['transactions'], 'readwrite')
+        const store = transaction.objectStore('transactions')
+        store.clear()
+      })
+    }
+  }
+}
+
+const saveRecord = transaction => {
+  const transaction = db.transaction(['transactions'], 'readwrite')
+  const store = transacction.objectStore('transactions')
+  store.add(transaction)
+}
+
+request.onsuccess = event => {
+  db = event.target.result 
+
+  if (navigator.onLine) {
+    checkDatabase
+  }
+}
+
 fetch("/api/transaction")
   .then(response => {
     return response.json();
@@ -151,3 +187,6 @@ document.querySelector("#add-btn").onclick = function() {
 document.querySelector("#sub-btn").onclick = function() {
   sendTransaction(false);
 };
+
+
+window.addEventListener('online', checkDatabase)
