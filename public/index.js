@@ -5,41 +5,41 @@ let db
 
 const request = indexedDB.open('budgetdb', 1)
 
-// const checkDatabase = () => {
-//   const transaction = db.transaction(['transactions'], 'readwrite')
-//   const store = transaction.objectStore('transactions')
-
-//   const getAll = store.getAll()
-
-//   getAll.onsuccess = () => {
-//     if(getAll.result.length > 0) {
-//       axios.post('/api/transactions', getAll.result)
-//       .then(() => {
-//         const transaction = db.transaction(['transactions'], 'readwrite')
-//         const store = transaction.objectStore('transactions')
-//         store.clear()
-//       })
-//     }
-//   }
-// }
-
-const saveRecord = transaction => {
+const checkDatabase = () => {
   const transaction = db.transaction(['transactions'], 'readwrite')
-  const store = transacction.objectStore('transactions')
-  store.add(transaction)
+  const store = transaction.objectStore('transactions')
+
+  const getAll = store.getAll()
+
+  getAll.onsuccess = () => {
+    if(getAll.result.length > 0) {
+      axios.post('/api/transactions', getAll.result)
+      .then(() => {
+        const transaction = db.transaction(['transactions'], 'readwrite')
+        const store = transaction.objectStore('transactions')
+        store.clear()
+      })
+    }
+  }
+}
+
+const saveRecord = record => {
+  const transaction = db.transaction(['transactions'], 'readwrite')
+  const store = transaction.objectStore('transactions')
+  store.add(record)
 }
 
 request.onupgradeneeded = event => {
   const db = event.target.result 
 
-  db.createObjectStore('transactions')
+  db.createObjectStore('transactions', {autoIncrement: true})
 }
 
 request.onsuccess = event => {
   db = event.target.result 
 
   if (navigator.onLine) {
-    checkDatabase
+    checkDatabase()
   }
 }
 
